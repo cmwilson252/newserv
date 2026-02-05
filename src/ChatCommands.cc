@@ -1038,17 +1038,14 @@ ChatCommandDefinition cc_edit(
           if (tokens.at(1) == "gear") {
             // uint8_t class_id = static_cast<uint8_t>(p->disp.visual.char_class);
             auto bank = a.c->bank_file();
-            auto s = a.c->require_server_state();
-            // const auto& limits = *s->item_stack_limits(a.c->version());
+            const auto& limits = *s->item_stack_limits(a.c->version());
             
-            // Clear the bank
-            bank->items.clear();
-            a.c->save_bank_file();
-            
-            // Now add items
-            // ItemData item_to_add;
-            // bank->add_item(item_to_add, limits);
+            // bank->items.clear();
             // a.c->save_bank_file();
+
+            ItemData item_to_add = s->parse_item_description(a.c->version(), "009D0000,00000364,04640564,00000000");
+            bank->add_item(item_to_add, limits);
+            a.c->save_bank_file();
 
           }
         } else {
