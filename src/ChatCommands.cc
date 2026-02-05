@@ -1036,17 +1036,11 @@ ChatCommandDefinition cc_edit(
           }
         } else if (tokens.at(0)== "ta" && (cheats_allowed || !s->cheat_flags.edit_stats)) {
           if (tokens.at(1) == "gear") {
-            // uint8_t class_id = static_cast<uint8_t>(p->disp.visual.char_class);
-            auto bank = a.c->bank_file();
+            auto bank = c->bank_file();
             const auto& limits = *s->item_stack_limits(a.c->version());
-            
-            // bank->items.clear();
-            // a.c->save_bank_file();
-
             ItemData item_to_add = s->parse_item_description(a.c->version(), "009D0000,00000364,04640564,00000000");
             bank->add_item(item_to_add, limits);
             a.c->save_bank_file();
-
           }
         } else {
           throw precondition_failed("$C6Unknown field");
