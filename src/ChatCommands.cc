@@ -22,6 +22,8 @@
 #include "Server.hh"
 #include "StaticGameData.hh"
 #include "Text.hh"
+#include "MaterialPlans.hh"
+
 
 using namespace std;
 
@@ -1014,6 +1016,23 @@ ChatCommandDefinition cc_edit(
             } catch (const out_of_range&) {
               throw precondition_failed("$C6Invalid technique");
             }
+          }
+        } else if (tokens.at(0)== "ta" && (cheats_allowed || !s->cheat_flags.edit_stats)) {
+          if (tokens.at(1) == "matplan") {
+            for (size_t x = 0; x < 0x14; x++) {
+              p->set_technique_level(x, 29);
+            }
+            p->disp.stats.level = 199;
+            uint8_t class_id = static_cast<uint8_t>(p->disp.visual.char_class);
+            const MatPlan* plan = get_ta_matplan(class_id);
+            p->set_material_usage(MatType::POWER, plan->mat_usage[0]);
+            p->set_material_usage(MatType::MIND,  plan->mat_usage[1]);
+            p->set_material_usage(MatType::EVADE, plan->mat_usage[2]);
+            p->set_material_usage(MatType::DEF,   plan->mat_usage[3]);
+            p->set_material_usage(MatType::LUCK,  plan->mat_usage[4]);
+            p->set_material_usage(MatType::HP,    plan->mat_usage[5]);
+            p->set_material_usage(MatType::TP,    plan->mat_usage[6]);
+            p->recompute_stats(s->level_table(a.c->version()), true);
           }
         } else {
           throw precondition_failed("$C6Unknown field");
