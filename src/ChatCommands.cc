@@ -1034,6 +1034,23 @@ ChatCommandDefinition cc_edit(
             p->set_material_usage(MatType::TP,    plan->mat_usage[6]);
             p->recompute_stats(s->level_table(a.c->version()), true);
           }
+        } else if (tokens.at(0)== "ta" && (cheats_allowed || !s->cheat_flags.edit_stats)) {
+          if (tokens.at(1) == "gear") {
+            uint8_t class_id = static_cast<uint8_t>(p->disp.visual.char_class);
+            auto bank = a.c->bank_file();
+            auto s = a.c->require_server_state();
+            const auto& limits = *s->item_stack_limits(a.c->version());
+            
+            // Clear the bank
+            bank->items.clear();
+            a.c->save_bank_file();
+            
+            // Now add items
+            // ItemData item_to_add;
+            // bank->add_item(item_to_add, limits);
+            // a.c->save_bank_file();
+
+          }
         } else {
           throw precondition_failed("$C6Unknown field");
         }
