@@ -1036,7 +1036,7 @@ ChatCommandDefinition cc_edit(
           }
         } else if (tokens.at(0)== "ta" && (cheats_allowed || !s->cheat_flags.edit_stats)) {
           if (tokens.at(1) == "gear") {
-            auto bank = c->bank_file();
+            auto bank = a.c->bank_file();
             const auto& limits = *s->item_stack_limits(a.c->version());
             ItemData item_to_add = s->parse_item_description(a.c->version(), "009D0000,00000364,04640564,00000000");
             bank->add_item(item_to_add, limits);
