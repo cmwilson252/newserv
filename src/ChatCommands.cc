@@ -1036,10 +1036,10 @@ ChatCommandDefinition cc_edit(
           }
         } else if (tokens.at(0)== "ta" && (cheats_allowed || !s->cheat_flags.edit_stats)) {
           if (tokens.at(1) == "gear") {
-            uint8_t class_id = static_cast<uint8_t>(p->disp.visual.char_class);
+            // uint8_t class_id = static_cast<uint8_t>(p->disp.visual.char_class);
             auto bank = a.c->bank_file();
             auto s = a.c->require_server_state();
-            const auto& limits = *s->item_stack_limits(a.c->version());
+            // const auto& limits = *s->item_stack_limits(a.c->version());
             
             // Clear the bank
             bank->items.clear();
