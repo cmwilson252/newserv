@@ -1039,6 +1039,7 @@ ChatCommandDefinition cc_edit(
             auto bank = a.c->bank_file();
             const auto& limits = *s->item_stack_limits(a.c->version());
             ItemData item_to_add = s->parse_item_description(a.c->version(), "009D0000,00000364,04640564,00000000");
+            a.c->log(std::format("item_to_add: {}", item_to_add.hex()), client_log.min_level);
             bank->add_item(item_to_add, limits);
             a.c->save_bank_file();
           }
