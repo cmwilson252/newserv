@@ -1034,6 +1034,8 @@ ChatCommandDefinition cc_edit(
             p->recompute_stats(s->level_table(a.c->version()), true);
           } else if (tokens.at(0) == "ta" && tokens.at(1) == "gear" && (cheats_allowed || !s->cheat_flags.edit_stats)) {
               auto bank = a.c->bank_file();
+              bank->items.clear();
+              bank->meseta = 0;
               const auto& limits = *s->item_stack_limits(a.c->version());
               for (const auto& spec : Hunter) {
                 ItemData data(spec.primary, spec.secondary);
