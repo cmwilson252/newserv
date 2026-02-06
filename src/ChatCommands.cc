@@ -1040,6 +1040,7 @@ ChatCommandDefinition cc_edit(
               const auto& limits = *s->item_stack_limits(a.c->version());
               ItemData item_to_add = s->parse_item_description(a.c->version(), "009D0000,00000364,04640564,00000000");
               bank->add_item(item_to_add, limits);
+              bank->assign_ids(0x99000000 + (a.c->lobby_client_id << 20));
               a.c->save_bank_file();
             }
         } else {
