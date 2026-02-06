@@ -39,3 +39,13 @@ inline const MatPlan* get_ta_matplan(uint8_t class_id) {
       return nullptr;
   }
 }
+
+struct HunterGear {
+  uint64_t primary;
+  uint64_t secondary;
+};
+
+inline constexpr HunterGear Hunter[] = {
+  {0x009D000000000364, 0x0464056400000000},
+  {0043010916000164, 0264046400000000}
+};

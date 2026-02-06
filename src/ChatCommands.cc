@@ -1032,13 +1032,17 @@ ChatCommandDefinition cc_edit(
             p->set_material_usage(MatType::HP,    plan->mat_usage[5]);
             p->set_material_usage(MatType::TP,    plan->mat_usage[6]);
             p->recompute_stats(s->level_table(a.c->version()), true);
-          } else if (tokens.at(0) == "ta" && tokens.at(1) == "gear"&& (cheats_allowed || !s->cheat_flags.edit_stats)) {
+          } else if (tokens.at(0) == "ta" && tokens.at(1) == "gear" && (cheats_allowed || !s->cheat_flags.edit_stats)) {
               auto bank = a.c->bank_file();
               const auto& limits = *s->item_stack_limits(a.c->version());
-              ItemData data(0x009D000000000364, 0x0464056400000000);
-              bank->add_item(data, limits);
+              for (const auto& spec : Hunter) {
+                ItemData data(spec.primary, spec.secondary);
+                bank->add_item(data, limits);
+              }
               a.c->save_bank_file();
             }
+
+            
           else {
           throw precondition_failed("$C6Unknown field");
         }
