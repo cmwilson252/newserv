@@ -1039,7 +1039,7 @@ ChatCommandDefinition cc_edit(
               bank->add_item(data, limits);
               a.c->save_bank_file();
             }
-        } else {
+          else {
           throw precondition_failed("$C6Unknown field");
         }
       } catch (const out_of_range&) {
