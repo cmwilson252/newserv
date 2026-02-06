@@ -1,3 +1,0 @@
-{
-  "AvailableIf": "V_NumPlayers <= 2 && V_Event == 9",
-}
