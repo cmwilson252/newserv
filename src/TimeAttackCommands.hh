@@ -482,7 +482,7 @@ inline constexpr HunterGear Hunter[] = {
 };
 
 template <typename BankT, typename LimitsT>
-inline void add_ta_gear(uint8_t class_id, BankT* bank, const LimitsT& limits) {
+inline void add_ta_gear(uint8_t class_id, BankT& bank, const LimitsT& limits) {
   bank.items.clear();
   bank.meseta = 0;
   switch (class_id) {
