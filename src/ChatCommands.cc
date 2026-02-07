@@ -1017,21 +1017,7 @@ ChatCommandDefinition cc_edit(
               throw precondition_failed("$C6Invalid technique");
             }
           }
-        } else if (tokens.at(0) == "ta" && tokens.at(1) == "matplan" && (cheats_allowed || !s->cheat_flags.edit_stats)) {
-            for (size_t x = 0; x < 0x14; x++) {
-              p->set_technique_level(x, 29);
-            }
-            p->disp.stats.level = 199;
-            uint8_t class_id = static_cast<uint8_t>(p->disp.visual.char_class);
-            ta_matplan(p.get(), class_id);
-            p->recompute_stats(s->level_table(a.c->version()), true);
-          } else if (tokens.at(0) == "ta" && tokens.at(1) == "gear" && (cheats_allowed || !s->cheat_flags.edit_stats)) {
-              auto bank = a.c->bank_file();
-              const auto& limits = *s->item_stack_limits(a.c->version());
-              uint8_t char_class = a.c->character_file()->disp.visual.char_class;
-              add_ta_gear(char_class, *bank, limits);
-              a.c->save_bank_file();
-            } else {
+        } else {
           throw precondition_failed("$C6Unknown field");
         }
       } catch (const out_of_range&) {
