@@ -7,36 +7,79 @@ struct MatPlan {
   std::array<uint8_t, 7> mat_usage;
 };
 
-inline const MatPlan* get_ta_matplan(uint8_t class_id) {
-  // POWER, MIND, EVADE, DEF, LUCK, HP, TP
-  static const MatPlan humar     = {{73, 52, 28, 69, 28, 125, 125}};
-  static const MatPlan hunewearl = {{99, 23,  0,  0, 28, 125, 125}};
-  static const MatPlan hucast    = {{112, 0,  0,  0, 38, 125,   0}};
-  static const MatPlan hucaseal  = {{62,  0,  7, 53, 28, 125,   0}};
-  static const MatPlan ramar     = {{60, 63, 31, 68, 28, 125, 125}};
-  static const MatPlan ramarl    = {{45, 132, 0, 45, 28, 125, 125}};
-  static const MatPlan racast    = {{90,  0,  0, 32, 28, 125,   0}};
-  static const MatPlan racaseal  = {{41,  0, 28, 53, 28, 125,   0}};
-  static const MatPlan fomar     = {{0,  133, 14, 65, 38, 125, 125}};
-  static const MatPlan fomarl    = {{24,  86, 38, 64, 38, 125, 125}};
-  static const MatPlan fonewm    = {{0,  140,  0,  0, 10, 125, 125}};
-  static const MatPlan fonewearl = {{0,  148,  0,  2,  0, 125, 125}};
+// humar - 0
+// hunewaerl - 1
+// hucast - 2
+// ramar - 3
+// racast - 4
+// racaseal - 5
+
+// fonewm - 6
+// fonewearl - 7
+// fomarl - 8
+
+// hucaseal - 9
+// ramarl - 11
+// fomar -10
+
+template <typename PlayerT>
+inline void ta_matplan(PlayerT* p, uint8_t class_id) {
+    static const MatPlan plans[12] = {
+    {{73, 52, 28, 69, 28, 125, 125}}, // 0 humar
+    {{99, 23,  0,  0, 28, 125, 125}}, // 1 hunewearl
+    {{106, 0,  0,  6, 38, 125,   0}}, // 2 hucast
+    {{60, 63, 31, 68, 28, 125, 125}}, // 3 ramar
+    {{90,  0,  0, 32, 28, 125,   0}}, // 4 racast
+    {{41,  0, 28, 53, 28, 125,   0}}, // 5 racaseal
+
+    {{0,  140,  0,  0, 10, 125, 125}}, // 6 fonewm
+    {{0,  148,  0,  2,  0, 125, 125}}, // 7 fonewearl
+    {{24,  86, 38, 64, 38, 125, 125}}, // 8 fomarl
+
+    {{62,  0,  7, 53, 28, 125,   0}}, // 9 hucaseal
+    {{0,  133, 14, 65, 38, 125, 125}}, // 10 fomar
+    {{45, 132, 0, 45, 28, 125, 125}}, // 11 ramarl
+  };
+  const MatPlan& plan = plans[class_id];
+  p->set_material_usage(MatType::POWER, plan.mat_usage[0]);
+  p->set_material_usage(MatType::MIND,  plan.mat_usage[1]);
+  p->set_material_usage(MatType::EVADE, plan.mat_usage[2]);
+  p->set_material_usage(MatType::DEF,   plan.mat_usage[3]);
+  p->set_material_usage(MatType::LUCK,  plan.mat_usage[4]);
+  p->set_material_usage(MatType::HP,    plan.mat_usage[5]);
+  p->set_material_usage(MatType::TP,    plan.mat_usage[6]);
+}
+
+
+inline void add_ta_gear(
+    uint8_t class_id,
+    BankFile& bank,
+    const ItemStackLimits& limits) {
+
+  bank.items.clear();
+  bank.meseta = 0;
 
   switch (class_id) {
-    case 0:  return &humar;
-    case 1:  return &hunewearl;
-    case 2:  return &hucast;
-    case 3:  return &hucaseal;
-    case 4:  return &ramar;
-    case 5: return &ramarl;
-    case 6:  return &racast;
-    case 7:  return &racaseal;
-    case 8: return &fomar;
-    case 9:  return &fomarl;
-    case 10:  return &fonewm;
-    case 11:  return &fonewearl;
-    default:
-      return nullptr;
+    // Hunter
+    case 0: case 1: case 2: case 9:
+      for (const auto& spec : Hunter) {
+        bank.add_item(ItemData(spec.primary, spec.secondary), limits);
+      }
+      break;
+
+    // Ranger
+    case 3: case 4: case 5: case 11:
+      for (const auto& spec : Ranger) {
+        bank.add_item(ItemData(spec.primary, spec.secondary), limits);
+      }
+      break;
+
+    // Force
+    case 6: case 7: case 8: case 10:
+      for (const auto& spec : Force) {
+        bank.add_item(ItemData(spec.primary, spec.secondary), limits);
+      }
+      break;
   }
 }
 

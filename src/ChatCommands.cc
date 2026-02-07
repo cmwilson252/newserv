@@ -22,7 +22,7 @@
 #include "Server.hh"
 #include "StaticGameData.hh"
 #include "Text.hh"
-#include "MaterialPlans.hh"
+#include "TimeAttackCommands.hh"
 
 
 using namespace std;
@@ -1023,45 +1023,14 @@ ChatCommandDefinition cc_edit(
             }
             p->disp.stats.level = 199;
             uint8_t class_id = static_cast<uint8_t>(p->disp.visual.char_class);
-            const MatPlan* plan = get_ta_matplan(class_id);
-            p->set_material_usage(MatType::POWER, plan->mat_usage[0]);
-            p->set_material_usage(MatType::MIND,  plan->mat_usage[1]);
-            p->set_material_usage(MatType::EVADE, plan->mat_usage[2]);
-            p->set_material_usage(MatType::DEF,   plan->mat_usage[3]);
-            p->set_material_usage(MatType::LUCK,  plan->mat_usage[4]);
-            p->set_material_usage(MatType::HP,    plan->mat_usage[5]);
-            p->set_material_usage(MatType::TP,    plan->mat_usage[6]);
+            ta_matplan(p, class_id);
             p->recompute_stats(s->level_table(a.c->version()), true);
           } else if (tokens.at(0) == "ta" && tokens.at(1) == "gear" && (cheats_allowed || !s->cheat_flags.edit_stats)) {
               auto bank = a.c->bank_file();
-              bank->items.clear();
-              bank->meseta = 0;
               const auto& limits = *s->item_stack_limits(a.c->version());
-              uint8_t char_class = a.c->character_file()->disp.visual.char_class;              
-              bool is_hunter = false;
-              bool is_ranger = false;
-              bool is_force = false;
-              switch (char_class) {
-                case 0: case 1: case 2: case 9:  is_hunter = true; break;
-                case 3: case 4: case 5: case 11: is_ranger = true; break;
-                case 6: case 7: case 8: case 10: is_force  = true; break;
-              }
-              if (is_hunter) {
-                for (const auto& spec : Hunter) {
-                  ItemData data(spec.primary, spec.secondary);
-                  bank->add_item(data, limits);
-                }
-              } else if (is_ranger) {
-                for (const auto& spec : Ranger) {
-                  ItemData data(spec.primary, spec.secondary);
-                  bank->add_item(data, limits);
-                }
-              } else if (is_force) {
-                for (const auto& spec : Force) {
-                  ItemData data(spec.primary, spec.secondary);
-                  bank->add_item(data, limits);
-                }
-              } 
+              uint8_t char_class = a.c->character_file()->disp.visual.char_class;
+              phosg::fwrite_fmt(stdout, "Equipping gear for char_class: {}\n", char_class);
+              add_ta_gear(char_class, *bank, limits);
               a.c->save_bank_file();
             } else {
           throw precondition_failed("$C6Unknown field");
