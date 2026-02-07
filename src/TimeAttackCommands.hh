@@ -52,6 +52,7 @@ inline void ta_matplan(PlayerT* p, uint8_t class_id) {
   p->set_material_usage(MatType::TP,    plan.mat_usage[6]);
 }
 
+template <typename BankT, typename LimitsT>
 inline void add_ta_gear(uint8_t class_id, BankT* bank, const LimitsT& limits) {
   bank.items.clear();
   bank.meseta = 0;
