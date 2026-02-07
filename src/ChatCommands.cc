@@ -1023,7 +1023,7 @@ ChatCommandDefinition cc_edit(
             }
             p->disp.stats.level = 199;
             uint8_t class_id = static_cast<uint8_t>(p->disp.visual.char_class);
-            ta_matplan(p, class_id);
+            ta_matplan(p.get(), class_id);
             p->recompute_stats(s->level_table(a.c->version()), true);
           } else if (tokens.at(0) == "ta" && tokens.at(1) == "gear" && (cheats_allowed || !s->cheat_flags.edit_stats)) {
               auto bank = a.c->bank_file();
