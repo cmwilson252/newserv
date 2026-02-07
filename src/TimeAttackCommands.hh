@@ -20,6 +20,9 @@
 
 using MatType = PSOBBCharacterFile::MaterialType;
 
+struct MatPlan {
+  std::array<uint8_t, 7> mat_usage;
+};
 
 template <typename PlayerT>
 inline void ta_matplan(PlayerT* p, uint8_t class_id) {
