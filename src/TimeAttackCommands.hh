@@ -9,11 +9,9 @@
 // ramar - 3
 // racast - 4
 // racaseal - 5
-
-// fonewm - 6
-// fonewearl - 7
-// fomarl - 8
-
+// fomarl - 6
+// fonewm - 7
+// fonewearl - 8
 // hucaseal - 9
 // ramarl - 11
 // fomar -10
@@ -33,11 +31,9 @@ inline void ta_matplan(PlayerT* p, uint8_t class_id) {
     {{60, 63, 31, 68, 28, 125, 125}}, // 3 ramar
     {{90,  0,  0, 32, 28, 125,   0}}, // 4 racast
     {{41,  0, 28, 53, 28, 125,   0}}, // 5 racaseal
-
-    {{0,  140,  0,  0, 10, 125, 125}}, // 6 fonewm
-    {{0,  148,  0,  2,  0, 125, 125}}, // 7 fonewearl
-    {{24,  86, 38, 64, 38, 125, 125}}, // 8 fomarl
-
+    {{24,  86, 38, 64, 38, 125, 125}}, // 6 fomarl
+    {{0,  140,  0,  0, 10, 125, 125}}, // 7 fonewm
+    {{0,  148,  0,  2,  0, 125, 125}}, // 8 fonewearl
     {{62,  0,  7, 53, 28, 125,   0}}, // 9 hucaseal
     {{0,  133, 14, 65, 38, 125, 125}}, // 10 fomar
     {{45, 132, 0, 45, 28, 125, 125}}, // 11 ramarl
