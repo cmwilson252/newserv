@@ -1038,17 +1038,21 @@ ChatCommandDefinition cc_edit(
               bank->meseta = 0;
               const auto& limits = *s->item_stack_limits(a.c->version());
               uint8_t char_class = a.c->character_file()->disp.visual.char_class;
+              phosg::fwrite_fmt(stdout, "Equipping gear for char_class: {}\n", char_class);
               if (char_class < 4) {
+                phosg::fwrite_fmt(stdout, "Using Hunter gear\n");
                 for (const auto& spec : Hunter) {
                   ItemData data(spec.primary, spec.secondary);
                   bank->add_item(data, limits);
                 }
               } else if (char_class < 8) {
+                phosg::fwrite_fmt(stdout, "Using Ranger gear\n");
                 for (const auto& spec : Ranger) {
                   ItemData data(spec.primary, spec.secondary);
                   bank->add_item(data, limits);
                 }
               } else {
+                phosg::fwrite_fmt(stdout, "Using Force gear\n");
                 for (const auto& spec : Force) {
                   ItemData data(spec.primary, spec.secondary);
                   bank->add_item(data, limits);
