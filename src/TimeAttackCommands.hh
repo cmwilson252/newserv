@@ -3,10 +3,6 @@
 #include <array>
 #include <cstdint>
 
-struct MatPlan {
-  std::array<uint8_t, 7> mat_usage;
-};
-
 // humar - 0
 // hunewaerl - 1
 // hucast - 2
@@ -21,6 +17,9 @@ struct MatPlan {
 // hucaseal - 9
 // ramarl - 11
 // fomar -10
+
+using MatType = PSOBBCharacterFile::MaterialType;
+
 
 template <typename PlayerT>
 inline void ta_matplan(PlayerT* p, uint8_t class_id) {
