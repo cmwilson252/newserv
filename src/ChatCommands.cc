@@ -3271,12 +3271,17 @@ ChatCommandDefinition cc_ta(
               uint8_t char_class = a.c->character_file()->disp.visual.char_class;
               add_ta_gear(char_class, *bank, limits);
               a.c->save_bank_file();
-            } else if (tokens.at(0) == "lower" && (cheats_allowed || !s->cheat_flags.edit_stats)) {
-                co_await send_change_player_hp(a.c, a.c->lobby_client_id, PlayerHPChange::SET_HP, 1);            } else {
+          } else if (tokens.at(0) == "lower" && (cheats_allowed || !s->cheat_flags.edit_stats)) {
+              co_await send_change_player_hp(a.c, a.c->lobby_client_id, PlayerHPChange::SET_HP, 1);            
+          } else if (tokens.at(0) == "restore" && (cheats_allowed || !s->cheat_flags.edit_stats)) {
+              const auto& stack_limits = *s->item_stack_limits(a.c->version());
+              auto player = a.c->character_file();
+              player->add_item(ItemData(0x03000200000A0000ULL, 0x0000000000000000ULL), stack_limits);
+          } else {
           throw precondition_failed("$C6Unknown field");
         }
       } catch (const out_of_range&) {
         throw precondition_failed("$C6Not enough arguments");
       }
       co_return;
-    });
+});
