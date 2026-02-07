@@ -52,15 +52,9 @@ inline void ta_matplan(PlayerT* p, uint8_t class_id) {
   p->set_material_usage(MatType::TP,    plan.mat_usage[6]);
 }
 
-
-inline void add_ta_gear(
-    uint8_t class_id,
-    BankFile& bank,
-    const ItemStackLimits& limits) {
-
+inline void add_ta_gear(uint8_t class_id, BankT* bank, const LimitsT& limits) {
   bank.items.clear();
   bank.meseta = 0;
-
   switch (class_id) {
     // Hunter
     case 0: case 1: case 2: case 9:
@@ -68,14 +62,12 @@ inline void add_ta_gear(
         bank.add_item(ItemData(spec.primary, spec.secondary), limits);
       }
       break;
-
     // Ranger
     case 3: case 4: case 5: case 11:
       for (const auto& spec : Ranger) {
         bank.add_item(ItemData(spec.primary, spec.secondary), limits);
       }
       break;
-
     // Force
     case 6: case 7: case 8: case 10:
       for (const auto& spec : Force) {
