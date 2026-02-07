@@ -3274,6 +3274,8 @@ ChatCommandDefinition cc_ta(
               uint8_t char_class = a.c->character_file()->disp.visual.char_class;
               add_ta_gear(char_class, *bank, limits);
               a.c->save_bank_file();
+            } else if (tokens.at(0) == "lower" && (cheats_allowed || !s->cheat_flags.edit_stats)) {
+              p->disp.stats.char_stats.hp = 1;
             } else {
           throw precondition_failed("$C6Unknown field");
         }
