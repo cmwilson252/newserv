@@ -52,32 +52,6 @@ inline void ta_matplan(PlayerT* p, uint8_t class_id) {
   p->set_material_usage(MatType::TP,    plan.mat_usage[6]);
 }
 
-template <typename BankT, typename LimitsT>
-inline void add_ta_gear(uint8_t class_id, BankT* bank, const LimitsT& limits) {
-  bank.items.clear();
-  bank.meseta = 0;
-  switch (class_id) {
-    // Hunter
-    case 0: case 1: case 2: case 9:
-      for (const auto& spec : Hunter) {
-        bank.add_item(ItemData(spec.primary, spec.secondary), limits);
-      }
-      break;
-    // Ranger
-    case 3: case 4: case 5: case 11:
-      for (const auto& spec : Ranger) {
-        bank.add_item(ItemData(spec.primary, spec.secondary), limits);
-      }
-      break;
-    // Force
-    case 6: case 7: case 8: case 10:
-      for (const auto& spec : Force) {
-        bank.add_item(ItemData(spec.primary, spec.secondary), limits);
-      }
-      break;
-  }
-}
-
 struct ForceGear {
   uint64_t primary;
   uint64_t secondary;
@@ -506,3 +480,29 @@ inline constexpr HunterGear Hunter[] = {
   {0x0244C8D9F401F433ULL, 0x3818000000000000ULL}, // Huct Min/Max mag  5/133/62/0
   {0x0244C8D9F4012C33ULL, 0x0019000000000000ULL}, // Hucl Min/Max mag  5/131/64/0
 };
+
+template <typename BankT, typename LimitsT>
+inline void add_ta_gear(uint8_t class_id, BankT* bank, const LimitsT& limits) {
+  bank.items.clear();
+  bank.meseta = 0;
+  switch (class_id) {
+    // Hunter
+    case 0: case 1: case 2: case 9:
+      for (const auto& spec : Hunter) {
+        bank.add_item(ItemData(spec.primary, spec.secondary), limits);
+      }
+      break;
+    // Ranger
+    case 3: case 4: case 5: case 11:
+      for (const auto& spec : Ranger) {
+        bank.add_item(ItemData(spec.primary, spec.secondary), limits);
+      }
+      break;
+    // Force
+    case 6: case 7: case 8: case 10:
+      for (const auto& spec : Force) {
+        bank.add_item(ItemData(spec.primary, spec.secondary), limits);
+      }
+      break;
+  }
+}
