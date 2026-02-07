@@ -3270,6 +3270,7 @@ ChatCommandDefinition cc_ta(
               const auto& limits = *s->item_stack_limits(a.c->version());
               uint8_t char_class = a.c->character_file()->disp.visual.char_class;
               add_ta_gear(char_class, *bank, limits);
+              send_text_message(a.c, "$C6Gear added\nto your bank.");
               a.c->save_bank_file();
           } else if (tokens.at(0) == "lower" && (cheats_allowed || !s->cheat_flags.edit_stats)) {
               co_await send_change_player_hp(a.c, a.c->lobby_client_id, PlayerHPChange::SET_HP, 1);            
