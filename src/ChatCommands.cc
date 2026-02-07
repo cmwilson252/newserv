@@ -3277,8 +3277,11 @@ ChatCommandDefinition cc_ta(
           } else if (tokens.at(0) == "restore" && (cheats_allowed || !s->cheat_flags.edit_stats)) {
               const auto& stack_limits = *s->item_stack_limits(a.c->version());
               auto player = a.c->character_file();
-              player->remove_item(ItemData(0x03000200000A0000ULL, 0x0000000000000000ULL), 10, stack_limits);
-              player->add_item(ItemData(0x03000200000A0000ULL, 0x0000000000000000ULL), stack_limits);
+              ItemData consumable_item(0x03000200000A0000ULL, 0x0000000000000000ULL);
+              player->remove_item(consumable_item.id, 10, stack_limits);
+              player->add_item(consumable_item, stack_limits);
+              // player->remove_item(ItemData(0x03000200000A0000ULL, 0x0000000000000000ULL), 10, stack_limits);
+              // player->add_item(ItemData(0x03000200000A0000ULL, 0x0000000000000000ULL), stack_limits);
               send_text_message(a.c, "$C6Consumables restored.");
           } else {
           throw precondition_failed("$C6Unknown field");
