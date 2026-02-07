@@ -1029,7 +1029,6 @@ ChatCommandDefinition cc_edit(
               auto bank = a.c->bank_file();
               const auto& limits = *s->item_stack_limits(a.c->version());
               uint8_t char_class = a.c->character_file()->disp.visual.char_class;
-              phosg::fwrite_fmt(stdout, "Equipping gear for char_class: {}\n", char_class);
               add_ta_gear(char_class, *bank, limits);
               a.c->save_bank_file();
             } else {
@@ -3242,3 +3241,66 @@ asio::awaitable<void> on_chat_command(std::shared_ptr<Client> c, const std::stri
     send_text_message(c, "$C6Failed:\n" + remove_color(e.what()));
   }
 }
+
+ChatCommandDefinition cc_ta(
+    {"$ta"},
+    +[](const Args& a) -> asio::awaitable<void> {
+      a.check_is_proxy(false);
+      a.check_is_game(false);
+
+      auto s = a.c->require_server_state();
+      // auto l = a.c->require_lobby();
+      if (!is_v1_or_v2(a.c->version()) && (a.c->version() != Version::BB_V4)) {
+        throw precondition_failed("$C6This command cannot\nbe used for your\nversion of PSO.");
+      }
+
+      bool cheats_allowed = (!a.check_permissions ||
+          (s->cheat_mode_behavior != ServerState::BehaviorSwitch::OFF) ||
+          a.c->login->account->check_flag(Account::Flag::CHEAT_ANYWHERE));
+
+      string encoded_args = phosg::tolower(a.text);
+      vector<string> tokens = phosg::split(encoded_args, ' ');
+
+      // using MatType = PSOBBCharacterFile::MaterialType;
+
+      try {
+        auto p = a.c->character_file();
+        if (tokens.at(0) == "matplan" && (cheats_allowed || !s->cheat_flags.edit_stats)) {
+            auto l = a.c->require_lobby();
+            for (size_t x = 0; x < 0x14; x++) {
+              p->set_technique_level(x, 29);
+            }
+            p->disp.stats.level = 199;
+            uint8_t class_id = static_cast<uint8_t>(p->disp.visual.char_class);
+            ta_matplan(p.get(), class_id);
+            p->recompute_stats(s->level_table(a.c->version()), true);
+            // Reload the client in the lobby
+            send_player_leave_notification(l, a.c->lobby_client_id);
+            if (a.c->version() == Version::BB_V4) {
+              send_complete_player_bb(a.c);
+            }
+            a.c->v1_v2_last_reported_disp.reset();
+            s->send_lobby_join_notifications(l, a.c);
+            co_return;
+          } else if (tokens.at(0) == "gear" && (cheats_allowed || !s->cheat_flags.edit_stats)) {
+              auto bank = a.c->bank_file();
+              const auto& limits = *s->item_stack_limits(a.c->version());
+              uint8_t char_class = a.c->character_file()->disp.visual.char_class;
+              add_ta_gear(char_class, *bank, limits);
+              a.c->save_bank_file();
+            } else {
+          throw precondition_failed("$C6Unknown field");
+        }
+      } catch (const out_of_range&) {
+        throw precondition_failed("$C6Not enough arguments");
+      }
+
+      // // Reload the client in the lobby
+      // send_player_leave_notification(l, a.c->lobby_client_id);
+      // if (a.c->version() == Version::BB_V4) {
+      //   send_complete_player_bb(a.c);
+      // }
+      // a.c->v1_v2_last_reported_disp.reset();
+      // s->send_lobby_join_notifications(l, a.c);
+      co_return;
+    });
