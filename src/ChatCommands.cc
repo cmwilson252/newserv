@@ -1037,15 +1037,25 @@ ChatCommandDefinition cc_edit(
               bank->items.clear();
               bank->meseta = 0;
               const auto& limits = *s->item_stack_limits(a.c->version());
-              for (const auto& spec : Hunter) {
-                ItemData data(spec.primary, spec.secondary);
-                bank->add_item(data, limits);
+              uint8_t char_class = a.c->character_file()->disp.visual.char_class;
+              if (char_class < 4) {
+                for (const auto& spec : Hunter) {
+                  ItemData data(spec.primary, spec.secondary);
+                  bank->add_item(data, limits);
+                }
+              } else if (char_class < 8) {
+                for (const auto& spec : Ranger) {
+                  ItemData data(spec.primary, spec.secondary);
+                  bank->add_item(data, limits);
+                }
+              } else {
+                for (const auto& spec : Force) {
+                  ItemData data(spec.primary, spec.secondary);
+                  bank->add_item(data, limits);
+                }
               }
               a.c->save_bank_file();
-            }
-
-            
-          else {
+            } else {
           throw precondition_failed("$C6Unknown field");
         }
       } catch (const out_of_range&) {
