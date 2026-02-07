@@ -1039,24 +1039,47 @@ ChatCommandDefinition cc_edit(
               const auto& limits = *s->item_stack_limits(a.c->version());
               uint8_t char_class = a.c->character_file()->disp.visual.char_class;
               phosg::fwrite_fmt(stdout, "Equipping gear for char_class: {}\n", char_class);
-              if (char_class < 4) {
+              
+              bool is_hunter = false;
+              bool is_ranger = false;
+              bool is_force = false;
+              
+              switch (char_class) {
+                case 0:   // humar
+                case 1:   // hunewearl
+                case 2:   // hucast
+                case 9:   // hucaseal
+                  is_hunter = true;
+                  break;
+                case 3:   // ramar
+                case 4:   // racast
+                case 11:  // ramarl
+                  is_ranger = true;
+                  break;
+                case 10:  // fomar
+                  is_force = true;
+                  break;
+              }
+              if (is_hunter) {
                 phosg::fwrite_fmt(stdout, "Using Hunter gear\n");
                 for (const auto& spec : Hunter) {
                   ItemData data(spec.primary, spec.secondary);
                   bank->add_item(data, limits);
                 }
-              } else if (char_class < 8) {
+              } else if (is_ranger) {
                 phosg::fwrite_fmt(stdout, "Using Ranger gear\n");
                 for (const auto& spec : Ranger) {
                   ItemData data(spec.primary, spec.secondary);
                   bank->add_item(data, limits);
                 }
-              } else {
+              } else if (is_force) {
                 phosg::fwrite_fmt(stdout, "Using Force gear\n");
                 for (const auto& spec : Force) {
                   ItemData data(spec.primary, spec.secondary);
                   bank->add_item(data, limits);
                 }
+              } else {
+                phosg::fwrite_fmt(stdout, "Unknown class: {}\n", char_class);
               }
               a.c->save_bank_file();
             } else {
