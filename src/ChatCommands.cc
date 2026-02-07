@@ -3232,7 +3232,7 @@ ChatCommandDefinition cc_ta(
     {"$ta"},
     +[](const Args& a) -> asio::awaitable<void> {
       a.check_is_proxy(false);
-      a.check_is_game(false);
+      // a.check_is_game(false);
 
       auto s = a.c->require_server_state();
       if (!is_v1_or_v2(a.c->version()) && (a.c->version() != Version::BB_V4)) {
