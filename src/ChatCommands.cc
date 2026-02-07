@@ -3280,6 +3280,7 @@ ChatCommandDefinition cc_ta(
               ItemData consumable_item(0x03000200000A0000ULL, 0x0000000000000000ULL);
               player->remove_item(consumable_item.id, 10, stack_limits);
               player->add_item(consumable_item, stack_limits);
+              a.c->save_character_file();
               // player->remove_item(ItemData(0x03000200000A0000ULL, 0x0000000000000000ULL), 10, stack_limits);
               // player->add_item(ItemData(0x03000200000A0000ULL, 0x0000000000000000ULL), stack_limits);
               send_text_message(a.c, "$C6Consumables restored.");
