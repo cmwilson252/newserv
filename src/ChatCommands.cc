@@ -3283,7 +3283,7 @@ ChatCommandDefinition cc_ta(
                 cmd.header = {0x0C, sizeof(G_AddStatusEffect_6x0C) >> 2, a.c->lobby_client_id};
                 cmd.effect_type = 0x09;
                 cmd.amount = 41.0f;
-                ch->send(0x60, 0x00, &cmd, sizeof(cmd));
+                a.c->send(0x60, 0x00, &cmd, sizeof(cmd));
               }
               // Deband (0x0A)
               {
@@ -3291,7 +3291,7 @@ ChatCommandDefinition cc_ta(
                 cmd.header = {0x0C, sizeof(G_AddStatusEffect_6x0C) >> 2, a.c->lobby_client_id};
                 cmd.effect_type = 0x0A;
                 cmd.amount = 41.0f;
-                ch->send(0x60, 0x00, &cmd, sizeof(cmd));
+                a.c->send(0x60, 0x00, &cmd, sizeof(cmd));
               }
             } else if (tokens.at(0) == "restore" && (cheats_allowed || !s->cheat_flags.edit_stats)) {
               const auto& limits = *s->item_stack_limits(a.c->version());
