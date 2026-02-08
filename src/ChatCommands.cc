@@ -3292,7 +3292,7 @@ ChatCommandDefinition cc_ta(
                 p->add_item(meseta_item, limits);
                 send_create_inventory_item_to_lobby(a.c, a.c->lobby_client_id, meseta_item);
               }
-              
+
               auto make_item = [](uint64_t primary, uint64_t secondary) -> ItemData {
                 return ItemData(primary, secondary);
               };
@@ -3354,7 +3354,7 @@ ChatCommandDefinition cc_ta(
                 send_text_message(a.c, "$C6Usage: $ta restore mm dm tm df tf sa ma st tp");
                 co_return;
               }
-              send_text_message(a.c, "$C6Consumables restored and 999,999 added.");
+              send_text_message(a.c, "$C6Consumables restored \nand 999,999 Meseta added.");
             }
             else {
           throw precondition_failed("$C6Unknown field");
