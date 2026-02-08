@@ -3276,16 +3276,85 @@ ChatCommandDefinition cc_ta(
           } else if (tokens.at(0) == "heal" && (cheats_allowed || !s->cheat_flags.edit_stats)) {
               co_await send_change_player_hp(a.c, a.c->lobby_client_id, static_cast<PlayerHPChange>(2), 0);
           } else if (tokens.at(0) == "restore" && (cheats_allowed || !s->cheat_flags.edit_stats)) {
-              const auto& stack_limits = *s->item_stack_limits(a.c->version());
-              auto player = a.c->character_file();
-              ItemData consumable_item(0x03000200000A0000ULL, 0x0000000000000000ULL);
-              player->remove_item(consumable_item.id, 10, stack_limits);
-              player->add_item(consumable_item, stack_limits);
-              a.c->save_character_file();
-              // player->remove_item(ItemData(0x03000200000A0000ULL, 0x0000000000000000ULL), 10, stack_limits);
-              // player->add_item(ItemData(0x03000200000A0000ULL, 0x0000000000000000ULL), stack_limits);
+              const auto& limits = *s->item_stack_limits(a.c->version());
+              auto p = a.c->character_file();
+              auto l = a.c->require_lobby(); // needed for generate_item_id
+
+              p->disp.stats.meseta = 999999;
+
+              auto make_item = [](uint64_t primary, uint64_t secondary) -> ItemData {
+                return ItemData(primary, secondary);
+              };
+
+              auto same_kind = [](const ItemData& a, const ItemData& b) -> bool {
+                return (a.data1[0] == b.data1[0]) &&
+                      (a.data1[1] == b.data1[1]) &&
+                      (a.data1[2] == b.data1[2]);
+              };
+
+              static const unordered_map<string, pair<uint64_t, uint64_t>> restore_items = {
+                  {"mm", {0x0300000000010000ULL, 0x0000000000000000ULL}},
+                  {"dm", {0x0300010000010000ULL, 0x0000000000000000ULL}},
+                  {"tm", {0x0300020000010000ULL, 0x0000000000000000ULL}},
+                  {"df", {0x0301010000010000ULL, 0x0000000000000000ULL}},
+                  {"tf", {0x0301020000010000ULL, 0x0000000000000000ULL}},
+                  {"sa", {0x0301030000010000ULL, 0x0000000000000000ULL}},
+                  {"ma", {0x0301040000010000ULL, 0x0000000000000000ULL}},
+                  {"st", {0x0301050000010000ULL, 0x0000000000000000ULL}},
+                  {"tp", {0x0301070000010000ULL, 0x0000000000000000ULL}},
+              };
+
+              bool did_any = false;
+
+              for (size_t z = 1; z < tokens.size(); z++) {
+                auto it = restore_items.find(tokens[z]);
+                if (it == restore_items.end()) {
+                  continue;
+                }
+                did_any = true;
+
+                ItemData kind = make_item(it->second.first, it->second.second);
+
+                // Remove all existing stacks of this kind
+                for (size_t i = 0; i < p->inventory.num_items; /* no i++ */) {
+                  const auto& inv_item = p->inventory.items[i].data;
+                  if ((inv_item.data1[0] != 0) && same_kind(inv_item, kind)) {
+                    // Remove entire stack (amount=0), then notify clients
+                    auto removed = p->remove_item(inv_item.id, 0, limits);
+                    send_destroy_item_to_lobby(a.c, removed.id, removed.stack_size(limits));
+                    continue; // inventory compacted
+                  }
+                  i++;
+                }
+
+                // Add stack of 10
+                ItemData stack10 = make_item(
+                    (it->second.first & 0xFFFFFFFF00000000ULL) | 0x000A0000ULL,
+                    it->second.second);
+
+                stack10.id = l->generate_item_id(a.c->lobby_client_id);
+                p->add_item(stack10, limits);
+
+                // Notify clients immediately
+                send_create_inventory_item_to_lobby(a.c, a.c->lobby_client_id, stack10);
+              }
+
+              if (!did_any) {
+                send_text_message(a.c, "$C6Usage: $ta restore mm dm tm df tf sa ma st tp");
+                co_return;
+              }
+
               send_text_message(a.c, "$C6Consumables restored.");
-          } else {
+            }
+          //   else if (tokens.at(0) == "restore" && (cheats_allowed || !s->cheat_flags.edit_stats)) {
+          //     const auto& stack_limits = *s->item_stack_limits(a.c->version());
+          //     auto player = a.c->character_file();
+          //     p->disp.stats.meseta = stoul(999999);
+          //     player->remove_item(ItemData(0x03000200000A0000ULL, 0x0000000000000000ULL), 10, stack_limits);
+          //     player->add_item(ItemData(0x03000200000A0000ULL, 0x0000000000000000ULL), stack_limits);
+          //     send_text_message(a.c, "$C6Consumables restored.");
+          // } 
+            else {
           throw precondition_failed("$C6Unknown field");
         }
       } catch (const out_of_range&) {
