@@ -3272,7 +3272,9 @@ ChatCommandDefinition cc_ta(
               send_text_message(a.c, "$C6Gear added\nto your bank.");
               a.c->save_bank_file();
           } else if (tokens.at(0) == "lower" && (cheats_allowed || !s->cheat_flags.edit_stats)) {
-              co_await send_change_player_hp(a.c, a.c->lobby_client_id, static_cast<PlayerHPChange>(0),1);            
+              co_await send_change_player_hp(a.c, a.c->lobby_client_id, static_cast<PlayerHPChange>(0), 1);            
+          } else if (tokens.at(0) == "heal" && (cheats_allowed || !s->cheat_flags.edit_stats)) {
+              co_await send_change_player_hp(a.c, a.c->lobby_client_id, static_cast<PlayerHPChange>(2), 0);
           } else if (tokens.at(0) == "restore" && (cheats_allowed || !s->cheat_flags.edit_stats)) {
               const auto& stack_limits = *s->item_stack_limits(a.c->version());
               auto player = a.c->character_file();
