@@ -3278,9 +3278,9 @@ ChatCommandDefinition cc_ta(
           } else if (tokens.at(0) == "restore" && (cheats_allowed || !s->cheat_flags.edit_stats)) {
               const auto& limits = *s->item_stack_limits(a.c->version());
               auto p = a.c->character_file();
-              auto l = a.c->require_lobby(); // needed for generate_item_id
+              auto l = a.c->require_lobby();
 
-              p->disp.stats.meseta = 999999;
+              p->disp.stats.meseta = stoul("999999");
 
               auto make_item = [](uint64_t primary, uint64_t secondary) -> ItemData {
                 return ItemData(primary, secondary);
@@ -3298,10 +3298,10 @@ ChatCommandDefinition cc_ta(
                   {"tm", {0x0300020000010000ULL, 0x0000000000000000ULL}},
                   {"df", {0x0301010000010000ULL, 0x0000000000000000ULL}},
                   {"tf", {0x0301020000010000ULL, 0x0000000000000000ULL}},
-                  {"sa", {0x0301030000010000ULL, 0x0000000000000000ULL}},
-                  {"ma", {0x0301040000010000ULL, 0x0000000000000000ULL}},
-                  {"st", {0x0301050000010000ULL, 0x0000000000000000ULL}},
-                  {"tp", {0x0301070000010000ULL, 0x0000000000000000ULL}},
+                  {"sa", {0x0303000000010000ULL, 0x0000000000000000ULL}},
+                  {"ma", {0x0304000000010000ULL, 0x0000000000000000ULL}},
+                  {"st", {0x0305000000010000ULL, 0x0000000000000000ULL}},
+                  {"tp", {0x0307000000010000ULL, 0x0000000000000000ULL}},
               };
 
               bool did_any = false;
@@ -3343,17 +3343,8 @@ ChatCommandDefinition cc_ta(
                 send_text_message(a.c, "$C6Usage: $ta restore mm dm tm df tf sa ma st tp");
                 co_return;
               }
-
               send_text_message(a.c, "$C6Consumables restored.");
             }
-          //   else if (tokens.at(0) == "restore" && (cheats_allowed || !s->cheat_flags.edit_stats)) {
-          //     const auto& stack_limits = *s->item_stack_limits(a.c->version());
-          //     auto player = a.c->character_file();
-          //     p->disp.stats.meseta = stoul(999999);
-          //     player->remove_item(ItemData(0x03000200000A0000ULL, 0x0000000000000000ULL), 10, stack_limits);
-          //     player->add_item(ItemData(0x03000200000A0000ULL, 0x0000000000000000ULL), stack_limits);
-          //     send_text_message(a.c, "$C6Consumables restored.");
-          // } 
             else {
           throw precondition_failed("$C6Unknown field");
         }
