@@ -3275,7 +3275,25 @@ ChatCommandDefinition cc_ta(
               co_await send_change_player_hp(a.c, a.c->lobby_client_id, static_cast<PlayerHPChange>(0), 1);            
           } else if (tokens.at(0) == "heal" && (cheats_allowed || !s->cheat_flags.edit_stats)) {
               co_await send_change_player_hp(a.c, a.c->lobby_client_id, static_cast<PlayerHPChange>(2), 0);
-          } else if (tokens.at(0) == "restore" && (cheats_allowed || !s->cheat_flags.edit_stats)) {
+          } else if (tokens.at(0) == "pb" && (cheats_allowed || !s->cheat_flags.edit_stats)) {
+              auto ch = a.c->channel;
+              // Shifta (0x09)
+              {
+                G_AddStatusEffect_6x0C cmd;
+                cmd.header = {0x0C, sizeof(G_AddStatusEffect_6x0C) >> 2, a.c->lobby_client_id};
+                cmd.effect_type = 0x09;
+                cmd.amount = 41.0f;
+                ch->send(0x60, 0x00, &cmd, sizeof(cmd));
+              }
+              // Deband (0x0A)
+              {
+                G_AddStatusEffect_6x0C cmd;
+                cmd.header = {0x0C, sizeof(G_AddStatusEffect_6x0C) >> 2, a.c->lobby_client_id};
+                cmd.effect_type = 0x0A;
+                cmd.amount = 41.0f;
+                ch->send(0x60, 0x00, &cmd, sizeof(cmd));
+              }
+            } else if (tokens.at(0) == "restore" && (cheats_allowed || !s->cheat_flags.edit_stats)) {
               const auto& limits = *s->item_stack_limits(a.c->version());
               auto p = a.c->character_file();
               auto l = a.c->require_lobby();
