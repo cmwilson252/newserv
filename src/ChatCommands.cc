@@ -3280,7 +3280,17 @@ ChatCommandDefinition cc_ta(
               auto p = a.c->character_file();
               auto l = a.c->require_lobby();
 
-              p->disp.stats.meseta = stoul("999999");
+              uint32_t old_meseta = p->disp.stats.meseta;
+              p->disp.stats.meseta = 999999;
+
+              uint32_t delta = (p->disp.stats.meseta > old_meseta) ? (p->disp.stats.meseta - old_meseta) : 0;
+              if (delta > 0) {
+                ItemData meseta_item;
+                meseta_item.data1[0] = 0x04;
+                meseta_item.data2d = delta;
+                meseta_item.id = l->generate_item_id(a.c->lobby_client_id);
+                p->add_item(meseta_item, limits);
+                send_create_inventory_item_to_lobby(a.c, a.c->lobby_client_id, meseta_item);
 
               auto make_item = [](uint64_t primary, uint64_t secondary) -> ItemData {
                 return ItemData(primary, secondary);
@@ -3343,7 +3353,7 @@ ChatCommandDefinition cc_ta(
                 send_text_message(a.c, "$C6Usage: $ta restore mm dm tm df tf sa ma st tp");
                 co_return;
               }
-              send_text_message(a.c, "$C6Consumables restored.");
+              send_text_message(a.c, "$C6Consumables restored and 999,999 added.");
             }
             else {
           throw precondition_failed("$C6Unknown field");
