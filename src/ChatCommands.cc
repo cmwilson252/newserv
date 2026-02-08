@@ -3282,16 +3282,17 @@ ChatCommandDefinition cc_ta(
                 G_AddStatusEffect_6x0C cmd;
                 cmd.header = {0x0C, sizeof(G_AddStatusEffect_6x0C) >> 2, a.c->lobby_client_id};
                 cmd.effect_type = 0x09;
-                cmd.amount = 41.0f;
-                a.c->send(0x60, 0x00, &cmd, sizeof(cmd));
+                cmd.amount = 41;
+                co_await send_protected_command(a.c, &cmd, sizeof(cmd), true);
               }
               // Deband (0x0A)
               {
                 G_AddStatusEffect_6x0C cmd;
                 cmd.header = {0x0C, sizeof(G_AddStatusEffect_6x0C) >> 2, a.c->lobby_client_id};
                 cmd.effect_type = 0x0A;
-                cmd.amount = 41.0f;
+                cmd.amount = 41;
                 a.c->send(0x60, 0x00, &cmd, sizeof(cmd));
+                co_await send_protected_command(a.c, &cmd, sizeof(cmd), true);
               }
             } else if (tokens.at(0) == "restore" && (cheats_allowed || !s->cheat_flags.edit_stats)) {
               const auto& limits = *s->item_stack_limits(a.c->version());
