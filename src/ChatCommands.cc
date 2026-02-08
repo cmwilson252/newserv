@@ -3291,7 +3291,8 @@ ChatCommandDefinition cc_ta(
                 meseta_item.id = l->generate_item_id(a.c->lobby_client_id);
                 p->add_item(meseta_item, limits);
                 send_create_inventory_item_to_lobby(a.c, a.c->lobby_client_id, meseta_item);
-
+              }
+              
               auto make_item = [](uint64_t primary, uint64_t secondary) -> ItemData {
                 return ItemData(primary, secondary);
               };
