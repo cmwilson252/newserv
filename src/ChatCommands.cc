@@ -3232,7 +3232,6 @@ ChatCommandDefinition cc_ta(
     {"$ta"},
     +[](const Args& a) -> asio::awaitable<void> {
       a.check_is_proxy(false);
-      // a.check_is_game(false);
 
       auto s = a.c->require_server_state();
       if (!is_v1_or_v2(a.c->version()) && (a.c->version() != Version::BB_V4)) {
@@ -3273,7 +3272,7 @@ ChatCommandDefinition cc_ta(
               send_text_message(a.c, "$C6Gear added\nto your bank.");
               a.c->save_bank_file();
           } else if (tokens.at(0) == "lower" && (cheats_allowed || !s->cheat_flags.edit_stats)) {
-              co_await send_change_player_hp(a.c, a.c->lobby_client_id, PlayerHPChange::SET_HP, 1);            
+              co_await send_change_player_hp(a.c, a.c->lobby_client_id, static_cast<PlayerHPChange>(0),1);            
           } else if (tokens.at(0) == "restore" && (cheats_allowed || !s->cheat_flags.edit_stats)) {
               const auto& stack_limits = *s->item_stack_limits(a.c->version());
               auto player = a.c->character_file();
