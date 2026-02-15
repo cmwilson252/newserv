@@ -480,7 +480,11 @@ inline constexpr HunterGear Hunter[] = {
 template <typename BankT, typename LimitsT>
 inline void add_ta_gear(uint8_t class_id, BankT& bank, const LimitsT& limits) {
   bank.items.clear();
+  for (auto& it : bank.items) {
+    it = {};
+  }
   bank.meseta = 0;
+
   switch (class_id) {
     // Hunter
     case 0: case 1: case 2: case 9:
