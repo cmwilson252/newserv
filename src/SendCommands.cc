@@ -4167,6 +4167,9 @@ void send_server_time(shared_ptr<Client> c) {
   gmtime_s(&t_parsed, &t_secs);
 #endif
 
+  t_parsed.tm_hour = 11;
+  t_parsed.tm_min = 25;
+
   string time_str(128, 0);
   size_t len = strftime(time_str.data(), time_str.size(), "%Y:%m:%d: %H:%M:%S.000", &t_parsed);
   if (len == 0) { // 128 should always be long enough
