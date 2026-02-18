@@ -488,21 +488,18 @@ inline void add_ta_gear(uint8_t class_id, BankT& bank, const LimitsT& limits) {
     case 0: case 1: case 2: case 9:
       for (const auto& spec : Hunter) {
         bank.add_item(ItemData(spec.primary, spec.secondary), limits);
-        bank->assign_ids(0x99000000 + (c->lobby_client_id << 20));
       }
       break;
     // Ranger
     case 3: case 4: case 5: case 11:
       for (const auto& spec : Ranger) {
         bank.add_item(ItemData(spec.primary, spec.secondary), limits);
-        bank->assign_ids(0x99000000 + (c->lobby_client_id << 20));
       }
       break;
     // Force
     case 6: case 7: case 8: case 10:
       for (const auto& spec : Force) {
         bank.add_item(ItemData(spec.primary, spec.secondary), limits);
-        bank->assign_ids(0x99000000 + (c->lobby_client_id << 20));
       }
       break;
   }
