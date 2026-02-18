@@ -3161,6 +3161,10 @@ Action a_materialize_map(
       }
       auto map_data = make_shared<string>(prs_decompress(read_input_data(args)));
       auto map_file = make_shared<MapFile>(map_data);
+      if (!map_file->has_random_sections()) {
+        throw std::runtime_error("input map file does not have any random sections");
+      }
+
       uint32_t seed = args.get<uint32_t>("seed", phosg::Arguments::IntFormat::HEX);
       auto materialized = map_file->materialize_random_sections(seed);
       if (args.get<bool>("disassemble")) {
@@ -3171,6 +3175,151 @@ Action a_materialize_map(
         auto new_data = prs_compress_optimal(materialized->serialize());
         write_output_data(args, new_data.data(), new_data.size(), "dat");
       }
+    });
+Action a_optimize_materialized_map(
+    "optimize-materialized-map", "\
+  optimize-materialized-map [OPTIONS] [INPUT-FILENAME]\n\
+    Runs the Challenge Mode random enemy generation algorithm on the input map\n\
+    file, looking for the seed that results in the fewest extra events and the\n\
+    fewest enemies overall, optionally restricting to specific enemy types. A\n\
+    version option is required. Other options:\n\
+      --minimize=TYPE[:PARAM:VALUE]: Try to find seeds that result in the\n\
+          fewest instances of this enemy (may be given multiple times). TYPE\n\
+          should be an integer (for example, 0x0040 for Hildebears and\n\
+          Hildeblues). This can also filter by a param value (for example,\n\
+          0x0044:6:2 for Gigoboomas). See Map.cc for a full listing of types\n\
+          and parameters). Event count always takes precedence; that is, a map\n\
+          with fewer events is always considered better than any map with more\n\
+          events, regardless of the enemy counts.\n\
+      --restrict-room=FLOOR:ROOM-ID: Ignore all enemies outside of this room\n\
+          (may be given multiple times).\n\
+      --threads=NUM-THREADS: Limits parallelism; by default, uses one thread\n\
+          per CPU core.\n\
+      --debug: Enables debug logging.\n\
+      --pessimize: Finds the worst seeds instead of the best seeds.\n",
+    +[](phosg::Arguments& args) {
+      if (args.get<bool>("debug")) {
+        static_game_data_log.min_level = phosg::LogLevel::L_DEBUG;
+      }
+      auto map_data = make_shared<string>(prs_decompress(read_input_data(args)));
+      auto map_file = make_shared<MapFile>(map_data);
+      if (!map_file->has_random_sections()) {
+        throw std::runtime_error("input map file does not have any random sections");
+      }
+
+      std::unordered_map<uint16_t, std::pair<uint8_t, int32_t>> minimize_types;
+      for (const auto& arg : args.get_multi<std::string>("minimize")) {
+        auto tokens = phosg::split(arg, ':');
+        if (tokens.size() == 1) {
+          minimize_types.emplace(std::stoul(arg, nullptr, 0), std::make_pair(0xFF, 0));
+        } else if (tokens.size() == 3) {
+          minimize_types.emplace(std::stoul(tokens[0], nullptr, 0), std::make_pair(std::stoul(tokens[1], nullptr, 0), std::stoul(tokens[2], nullptr, 0)));
+        } else {
+          throw std::runtime_error("invalid value for --minimize");
+        }
+      }
+
+      std::unordered_set<uint32_t> floor_room_ids; // (floor << 16) | room_id
+      for (const auto& arg : args.get_multi<std::string>("restrict-room")) {
+        auto tokens = phosg::split(arg, ':');
+        if (tokens.size() != 2) {
+          throw std::runtime_error("invalid value for --restrict-room");
+        }
+        uint8_t floor = std::stoul(tokens[0], nullptr, 0);
+        uint16_t room_id = std::stoul(tokens[1], nullptr, 0);
+        floor_room_ids.emplace((floor << 16) | room_id);
+      }
+
+      size_t num_threads = args.get<size_t>("threads", 0);
+      bool pessimize = args.get<bool>("pessimize");
+      mutex output_lock;
+      size_t min_counts = pessimize ? 0 : 0xFFFFFFFF;
+      auto thread_fn = [&](uint64_t seed, size_t) -> bool {
+        auto materialized = map_file->materialize_random_sections(seed);
+
+        auto is_minimize_target = [&](const MapFile::EnemySetEntry& ene) -> bool {
+          if (!floor_room_ids.empty()) {
+            uint32_t floor_room_id_key = (ene.floor << 8) | ene.room;
+            if (!floor_room_ids.count(floor_room_id_key)) {
+              return false;
+            }
+          }
+          if (minimize_types.empty()) {
+            return true;
+          }
+          auto it = minimize_types.find(ene.base_type);
+          if (it == minimize_types.end()) {
+            return false;
+          }
+          const auto& [param, value] = it->second;
+          switch (param) {
+            case 1:
+              return ene.param1.load() == value;
+            case 2:
+              return ene.param2.load() == value;
+            case 3:
+              return ene.param3.load() == value;
+            case 4:
+              return ene.param4.load() == value;
+            case 5:
+              return ene.param5.load() == value;
+            case 6:
+              return ene.param6.load() == value;
+            case 7:
+              return ene.param7.load() == value;
+            default:
+              return true;
+          }
+        };
+
+        size_t extra_event_count = 0;
+        size_t total_event_count = 0;
+        size_t total_enemy_set_count = 0;
+        size_t minimized_enemy_set_count = 0;
+        map<uint16_t, size_t> enemy_set_counts;
+        for (size_t floor = 0; floor < 0x12; floor++) {
+          const auto& fs = materialized->floor(floor);
+          if (!fs.enemy_sets || !fs.events1) {
+            continue;
+          }
+          total_event_count += fs.event_count;
+          for (size_t z = 0; z < fs.event_count; z++) {
+            const auto& ev = fs.events1[z];
+            if (ev.event_id >= 10000) {
+              extra_event_count++;
+            }
+          }
+
+          total_enemy_set_count += fs.enemy_set_count;
+          for (size_t z = 0; z < fs.enemy_set_count; z++) {
+            const auto& ene = fs.enemy_sets[z];
+            enemy_set_counts.emplace(ene.base_type, 0).first->second++;
+            if (is_minimize_target(ene)) {
+              minimized_enemy_set_count++;
+            }
+          }
+        }
+
+        size_t this_count = (total_event_count << 16) | minimized_enemy_set_count;
+        {
+          lock_guard g(output_lock);
+          if (pessimize ? (this_count >= min_counts) : (this_count <= min_counts)) {
+            min_counts = this_count;
+            string line = std::format("SEED {:08X}: event_count={} (extra={}) enemy_sets=[",
+                seed, total_event_count, extra_event_count);
+            for (const auto& it : enemy_set_counts) {
+              line += std::format("{:04X}={}, ", it.first, it.second);
+            }
+            line.resize(line.size() - 2);
+            line += std::format("] (count={}, {}={})\n",
+                total_enemy_set_count, pessimize ? "maximized" : "minimized", minimized_enemy_set_count);
+            phosg::fwritex(stdout, line);
+          }
+        }
+
+        return false;
+      };
+      phosg::parallel_range_blocks<uint64_t>(thread_fn, 0, 0x100000000, 0x100, num_threads);
     });
 
 Action a_print_free_supermap(
