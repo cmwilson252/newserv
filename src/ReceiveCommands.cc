@@ -2398,9 +2398,9 @@ void set_lobby_quest(shared_ptr<Lobby> l, shared_ptr<const Quest> q, bool substi
   if (!l->is_game()) {
     throw logic_error("non-game lobby cannot accept a quest");
   }
-  if (l->quest) {
-    throw runtime_error("lobby already has an assigned quest");
-  }
+  // if (l->quest) {
+  //   throw runtime_error("lobby already has an assigned quest");
+  // }
 
   // Only allow loading battle/challenge quests if the game mode is correct
   if ((q->meta.challenge_template_index >= 0) != (l->mode == GameMode::CHALLENGE)) {
